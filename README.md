@@ -42,7 +42,7 @@ curl localhost:3000/api/docs
 ## Development notes
 
 Install the required packages.
-
+npm start
 ```sh
 npm install express jsonwebtoken mysql2 bcrypt
 ```
