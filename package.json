@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "cd src && node index.js"
-  },
+  "start": "node index.js",
+  "lint": "eslint ."
+},
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
