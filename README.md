@@ -4,7 +4,7 @@
   run: |
     coverage=$(jq '.total.lines.pct' coverage/coverage-summary.json)
     color=$(echo "$coverage < 80" | bc | awk '{if ($1) print "red"; else print "green"}')
-    curl -s -X POST "https://pizza-factory.cs329.click/api/badge/${{ secrets.cwarner0}}/jwtpizzaservicecoverage?label=Coverage&value=$coverage%25&color=$color" -H "authorization: bearer ${{ secrets.db9dfdf3a148419d9012a2acd92e41d5}}"
+    curl -s -X POST "https://pizza-factory.cs329.click/api/badge/${{ secrets.cwarner0 }}/jwtpizzaservicecoverage?label=Coverage&value=$coverage%25&color=$color" -H "authorization: bearer ${{ secrets.db9dfdf3a148419d9012a2acd92e41d5 }}"
   
 ![Coverage badge](https://pizza-factory.cs329.click/api/badge/accountId/jwtpizzaservicecoverage)
 
