@@ -1,5 +1,3 @@
-/* global beforeAll, test, expect */
-
 const request = require('supertest');
 const app = require('./service');
 
@@ -10,9 +8,6 @@ beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   const registerRes = await request(app).post('/api/auth').send(testUser);
   testUserAuthToken = registerRes.body.token;
-  
-  // Use the token to prevent unused variable warning
-  expect(testUserAuthToken).toBeDefined();
 });
 
 test('login', async () => {
@@ -20,8 +15,6 @@ test('login', async () => {
   expect(loginRes.status).toBe(200);
   expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
 
-  // Don't destructure password since we don't use it
-  const user = { ...testUser, roles: [{ role: 'diner' }] };
-  delete user.password;
+  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
   expect(loginRes.body.user).toMatchObject(user);
 });
