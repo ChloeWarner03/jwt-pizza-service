@@ -1,3 +1,5 @@
+/* global beforeAll, test, expect */
+
 const request = require('supertest');
 const app = require('./service');
 
@@ -18,7 +20,8 @@ test('login', async () => {
   expect(loginRes.status).toBe(200);
   expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
 
-  // Extract password from testUser without creating unused variable
-  const { password: _password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
+  // Don't destructure password since we don't use it
+  const user = { ...testUser, roles: [{ role: 'diner' }] };
+  delete user.password;
   expect(loginRes.body.user).toMatchObject(user);
 });
