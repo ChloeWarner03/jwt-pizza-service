@@ -1,10 +1,10 @@
 # 🍕 jwt-pizza-service
 
-- name: Update coverage
-  run: |
-    coverage=$(jq '.total.lines.pct' coverage/coverage-summary.json)
-    color=$(echo "$coverage < 80" | bc | awk '{if ($1) print "red"; else print "green"}')
-    curl -s -X POST "https://pizza-factory.cs329.click/api/badge/${{ secrets.NET_ID }}/jwtpizzaservicecoverage?label=Coverage&value=$coverage%25&color=$color" -H "authorization: bearer ${{ secrets.FACTORY_API_KEY }}"
+[![CI Pipeline](https://github.com/ChloeWarner03/jwt-pizza-service/actions/workflows/ci.yml/badge.svg)](https://github.com/ChloeWarner03/jwt-pizza-service/actions/workflows/ci.yml)
+![Coverage badge](https://pizza-factory.cs329.click/api/badge/cwarner0/jwtpizzaservicecoverage)
+
+Backend service for making JWT pizzas. This service tracks users and franchises and orders pizzas. All order requests are passed to the JWT Pizza Factory where the pizzas are made.
+JWTs are used for authentication objects.
   
 ![Coverage badge](https://pizza-factory.cs329.click/api/badge/cwarner0/jwtpizzaservicecoverage)
 
