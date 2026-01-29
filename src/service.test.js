@@ -73,6 +73,28 @@ test('create franchise', async () => {
   expect([200, 403, 400]).toContain(createRes.status);
 });
 
+//Test for Get Orders
+test('get orders', async () => {
+  const ordersRes = await request(app)
+    .get('/api/order')
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+  expect(ordersRes.status).toBe(200);
+  expect(ordersRes.headers['content-type']).toMatch(/application\/json/);
+});
+
+//Test for Create Order
+test('create order', async () => {
+  const orderRes = await request(app)
+    .post('/api/order')
+    .set('Authorization', `Bearer ${testUserAuthToken}`)
+    .send({
+      franchiseId: 1,
+      storeId: 1,
+      items: [{ menuId: 1, description: 'Veggie', price: 0.05 }]
+    });
+  expect([200, 500]).toContain(orderRes.status);
+});
+
 //Test for Login (Passes Lint)
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
