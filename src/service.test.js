@@ -56,3 +56,13 @@ test('get menu', async () => {
   expect(menuRes.headers['content-type']).toMatch(/application\/json/);
   expect(Array.isArray(menuRes.body)).toBe(true);
 });
+
+//Test for Add Menu Item
+test('add menu item', async () => {
+  const addRes = await request(app)
+    .put('/api/order/menu')
+    .set('Authorization', `Bearer ${testUserAuthToken}`)
+    .send({ title: 'Student', description: 'No topping', image: 'pizza9.png', price: 0.0001 });
+  expect([200, 401, 403]).toContain(addRes.status);
+});
+
