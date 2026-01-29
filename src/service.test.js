@@ -48,3 +48,11 @@ test('update user', async () => {
     .send({ email: testUser.email, password: 'newpassword' });
   expect([200, 403, 404]).toContain(updateRes.status);
 });
+
+//Test for Get Menu
+test('get menu', async () => {
+  const menuRes = await request(app).get('/api/order/menu');
+  expect(menuRes.status).toBe(200);
+  expect(menuRes.headers['content-type']).toMatch(/application\/json/);
+  expect(Array.isArray(menuRes.body)).toBe(true);
+});
