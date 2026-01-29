@@ -22,17 +22,6 @@ test('register', async () => {
   expect(registerRes.body.user).toMatchObject({ name: newUser.name, email: newUser.email });
 });
 
-//Test for Login (Passes Lint)
-test('login', async () => {
-  const loginRes = await request(app).put('/api/auth').send(testUser);
-  expect(loginRes.status).toBe(200);
-  expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
-
-  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
-  expect(password).toBeDefined();
-  expect(loginRes.body.user).toMatchObject(user);
-});
-
 //Test for Logout
 test('logout', async () => {
   const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${testUserAuthToken}`);
@@ -66,3 +55,14 @@ test('add menu item', async () => {
   expect([200, 401, 403]).toContain(addRes.status);
 });
 
+
+//Test for Login (Passes Lint)
+test('login', async () => {
+  const loginRes = await request(app).put('/api/auth').send(testUser);
+  expect(loginRes.status).toBe(200);
+  expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
+
+  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
+  expect(password).toBeDefined();
+  expect(loginRes.body.user).toMatchObject(user);
+});
