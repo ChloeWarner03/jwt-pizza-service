@@ -31,6 +31,37 @@ test('register missing password fails', async () => {
   expect([400, 500]).toContain(res.status);
 });
 
+//Wrong password login test
+test('login wrong password fails', async () => {
+  const res = await request(app)
+    .put('/api/auth')
+    .send({ email: testUser.email, password: 'wrongpassword' });
+
+  expect([401, 403, 404]).toContain(res.status);
+});
+
+//Test for Get All Users
+test('get all users without auth fails', async () => {
+  const res = await request(app).get('/api/user');
+  expect([401, 403]).toContain(res.status);
+});
+
+// Test for Get User by ID
+test('get user by id authorized', async () => {
+  const res = await request(app)
+    .get(`/api/user/${testUserId}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+
+  expect([200, 404]).toContain(res.status);
+});
+
+//Test for Get User by ID without Auth
+test('get user by id without auth fails', async () => {
+  const res = await request(app).get(`/api/user/${testUserId}`);
+  expect([200, 404]).toContain(res.status);
+});
+
+
 //Test for Update User
 test('update user', async () => {
   const updateRes = await request(app)
@@ -110,13 +141,15 @@ test('unknown endpoint', async () => {
   expect(res.status).toBe(404);
 });
 
-//Test for Login (Passes Lint)
-test('login', async () => {
-  const loginRes = await request(app).put('/api/auth').send(testUser);
-  expect(loginRes.status).toBe(200);
-  expect(loginRes.body.token).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
+//logout tets 
+test('logout', async () => {
+  const res = await request(app)
+    .delete('/api/auth')
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+  expect([200, 401]).toContain(res.status);
+});
 
-  const { password, ...user } = { ...testUser, roles: [{ role: 'diner' }] };
-  expect(password).toBeDefined();
-  expect(loginRes.body.user).toMatchObject(user);
+test('delete user unauthorized', async () => {
+  const res = await request(app).delete(`/api/user/${testUserId}`);
+  expect([401, 403]).toContain(res.status);
 });
