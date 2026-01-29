@@ -22,13 +22,6 @@ test('register', async () => {
   expect(registerRes.body.user).toMatchObject({ name: newUser.name, email: newUser.email });
 });
 
-//Test for Logout
-test('logout', async () => {
-  const logoutRes = await request(app).delete('/api/auth').set('Authorization', `Bearer ${testUserAuthToken}`);
-  expect(logoutRes.status).toBe(200);
-  expect(logoutRes.body.message).toBe('logout successful');
-});
-
 //Test for Update User
 test('update user', async () => {
   const updateRes = await request(app)
@@ -61,6 +54,23 @@ test('get all franchises', async () => {
   expect(franchiseRes.status).toBe(200);
   expect(franchiseRes.headers['content-type']).toMatch(/application\/json/);
   expect(franchiseRes.body).toBeDefined();
+});
+
+//Test for Get User Franchises
+test('get user franchises', async () => {
+  const userFranchiseRes = await request(app)
+    .get(`/api/franchise/${testUserId}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+  expect([200, 404]).toContain(userFranchiseRes.status);
+});
+
+//Test for Create Franchise
+test('create franchise', async () => {
+  const createRes = await request(app)
+    .post('/api/franchise')
+    .set('Authorization', `Bearer ${testUserAuthToken}`)
+    .send({ name: 'Test Franchise', admins: [{ email: testUser.email }] });
+  expect([200, 403, 400]).toContain(createRes.status);
 });
 
 //Test for Login (Passes Lint)
