@@ -22,6 +22,15 @@ test('register', async () => {
   expect(registerRes.body.user).toMatchObject({ name: newUser.name, email: newUser.email });
 });
 
+//Missing Password Registration Test
+test('register missing password fails', async () => {
+  const res = await request(app)
+    .post('/api/auth')
+    .send({ name: 'bad', email: 'bad@test.com' });
+
+  expect([400, 500]).toContain(res.status);
+});
+
 //Test for Update User
 test('update user', async () => {
   const updateRes = await request(app)
@@ -93,6 +102,12 @@ test('create order', async () => {
       items: [{ menuId: 1, description: 'Veggie', price: 0.05 }]
     });
   expect([200, 500]).toContain(orderRes.status);
+});
+
+//Test for Unknown Endpoint
+test('unknown endpoint', async () => {
+  const res = await request(app).get('/api/unknown');
+  expect(res.status).toBe(404);
 });
 
 //Test for Login (Passes Lint)
