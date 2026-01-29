@@ -63,7 +63,6 @@ test('get all franchises', async () => {
   expect(franchiseRes.body).toBeDefined();
 });
 
-
 //Test for Login (Passes Lint)
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
