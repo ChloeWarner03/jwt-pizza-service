@@ -12,7 +12,8 @@
     "collectCoverage": true,
     "coveragePathIgnorePatterns": [
       "/src/database/database.js"
-    ]
+    ],
+    "coverageReporters": ["text", "json-summary", "lcov"]
   },
   "license": "MIT",
   "dependencies": {

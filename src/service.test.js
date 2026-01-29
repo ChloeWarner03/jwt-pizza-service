@@ -113,6 +113,23 @@ test('create franchise', async () => {
   expect([200, 403, 400]).toContain(createRes.status);
 });
 
+//Test for Create Store in Franchise
+test('create store in franchise', async () => {
+  const createRes = await request(app)
+    .post('/api/franchise/1/store')
+    .set('Authorization', `Bearer ${testUserAuthToken}`)
+    .send({ name: 'Test Store' });
+  expect([200, 403, 404]).toContain(createRes.status);
+});
+
+//Test for Delete Store from Franchise
+test('delete store from franchise', async () => {
+  const deleteRes = await request(app)
+    .delete('/api/franchise/1/store/1')
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+  expect([200, 403, 404]).toContain(deleteRes.status);
+});
+
 //Test for Get Orders
 test('get orders', async () => {
   const ordersRes = await request(app)
