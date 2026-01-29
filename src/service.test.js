@@ -55,6 +55,14 @@ test('add menu item', async () => {
   expect([200, 401, 403]).toContain(addRes.status);
 });
 
+//Test for Get All Franchises
+test('get all franchises', async () => {
+  const franchiseRes = await request(app).get('/api/franchise');
+  expect(franchiseRes.status).toBe(200);
+  expect(franchiseRes.headers['content-type']).toMatch(/application\/json/);
+  expect(franchiseRes.body).toBeDefined();
+});
+
 
 //Test for Login (Passes Lint)
 test('login', async () => {
