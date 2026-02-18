@@ -4,13 +4,31 @@ const app = require('./service');
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 let testUserId;
+let adminToken;
 
+//Helper Function
+async function registerUser(service) {
+  const newUser = {
+    name: 'pizza diner',
+    email: `${Math.random().toString(36).substring(2, 12)}@test.com`,
+    password: 'a',
+  };
+  const registerRes = await service.post('/api/auth').send(newUser);
+  registerRes.body.user.password = newUser.password;
+  return [registerRes.body.user, registerRes.body.token];
+}
 
 beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   const registerRes = await request(app).post('/api/auth').send(testUser);
   testUserAuthToken = registerRes.body.token;
   testUserId = registerRes.body.user.id;
+
+  // Also login as admin
+  const adminLogin = await request(app)
+    .put('/api/auth')
+    .send({ email: 'a@jwt.com', password: 'admin' });
+  adminToken = adminLogin.body.token;
 });
 
 //Test for Registration (Passes Lint)
@@ -185,12 +203,6 @@ test('list users non-admin forbidden', async () => {
 });
 
 test('list users as admin', async () => {
-  // Login as the default admin seeded in the DB
-  const loginRes = await request(app)
-    .put('/api/auth')
-    .send({ email: 'a@jwt.com', password: 'admin' });
-  const adminToken = loginRes.body.token;
-
   const res = await request(app)
     .get('/api/user')
     .set('Authorization', 'Bearer ' + adminToken);
@@ -201,11 +213,6 @@ test('list users as admin', async () => {
 });
 
 test('list users with name filter', async () => {
-  const loginRes = await request(app)
-    .put('/api/auth')
-    .send({ email: 'a@jwt.com', password: 'admin' });
-  const adminToken = loginRes.body.token;
-
   const res = await request(app)
     .get('/api/user?page=1&limit=10&name=pizza*')
     .set('Authorization', 'Bearer ' + adminToken);
@@ -213,16 +220,3 @@ test('list users with name filter', async () => {
   expect(Array.isArray(res.body.users)).toBe(true);
 });
 
-//Added helper function to register user for testing purposes
-async function registerUser(service) {
-  const testUser = {
-    name: 'pizza diner',
-    email: `${Math.random().toString(36).substring(2, 12)}@test.com`,
-    password: 'a',
-  };
-  const registerRes = await service.post('/api/auth').send(testUser);
-  registerRes.body.user.password = testUser.password;
-  return [registerRes.body.user, registerRes.body.token];
-}
-
-//Ran the tests and they worked?
