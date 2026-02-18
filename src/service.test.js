@@ -170,3 +170,57 @@ test('delete user unauthorized', async () => {
   const res = await request(app).delete(`/api/user/${testUserId}`);
   expect([401, 403]).toContain(res.status);
 });
+
+test('list users unauthorized', async () => {
+  const res = await request(app).get('/api/user');
+  expect(res.status).toBe(401);
+});
+
+test('list users non-admin forbidden', async () => {
+  const [, token] = await registerUser(request(app));
+  const res = await request(app)
+    .get('/api/user')
+    .set('Authorization', 'Bearer ' + token);
+  expect(res.status).toBe(403);
+});
+
+test('list users as admin', async () => {
+  // Login as the default admin seeded in the DB
+  const loginRes = await request(app)
+    .put('/api/auth')
+    .send({ email: 'a@jwt.com', password: 'admin' });
+  const adminToken = loginRes.body.token;
+
+  const res = await request(app)
+    .get('/api/user')
+    .set('Authorization', 'Bearer ' + adminToken);
+  expect(res.status).toBe(200);
+  expect(res.body.users).toBeDefined();
+  expect(Array.isArray(res.body.users)).toBe(true);
+  expect(typeof res.body.more).toBe('boolean');
+});
+
+test('list users with name filter', async () => {
+  const loginRes = await request(app)
+    .put('/api/auth')
+    .send({ email: 'a@jwt.com', password: 'admin' });
+  const adminToken = loginRes.body.token;
+
+  const res = await request(app)
+    .get('/api/user?page=1&limit=10&name=pizza*')
+    .set('Authorization', 'Bearer ' + adminToken);
+  expect(res.status).toBe(200);
+  expect(Array.isArray(res.body.users)).toBe(true);
+});
+
+//Added helper function to register user for testing purposes
+async function registerUser(service) {
+  const testUser = {
+    name: 'pizza diner',
+    email: `${Math.random().toString(36).substring(2, 12)}@test.com`,
+    password: 'a',
+  };
+  const registerRes = await service.post('/api/auth').send(testUser);
+  registerRes.body.user.password = testUser.password;
+  return [registerRes.body.user, registerRes.body.token];
+}
