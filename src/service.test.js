@@ -4,7 +4,8 @@ const app = require('./service');
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 let testUserId;
-let adminToken;
+let adminId;
+let adminEmail;
 
 //Helper Function
 async function registerUser(service) {
@@ -24,11 +25,36 @@ beforeAll(async () => {
   testUserAuthToken = registerRes.body.token;
   testUserId = registerRes.body.user.id;
 
-  // Also login as admin
+  // Create a temp admin user
+  adminEmail = `admin${Math.random().toString(36).substring(2, 12)}@test.com`;
+  const adminRegister = await request(app).post('/api/auth').send({
+    name: 'temp admin',
+    email: adminEmail,
+    password: 'adminpass',
+  });
+  adminId = adminRegister.body.user.id;
+
+  // Promote to admin in DB
+  const { DB } = require('./database/database.js');
+  const conn = await DB.getConnection();
+  await DB.query(conn, `UPDATE userRole SET role='admin' WHERE userId=?`, [adminId]);
+  conn.end();
+
+  // Login again to get token with admin role baked in
   const adminLogin = await request(app)
     .put('/api/auth')
-    .send({ email: 'a@jwt.com', password: 'admin' });
+    .send({ email: adminEmail, password: 'adminpass' });
   adminToken = adminLogin.body.token;
+});
+
+afterAll(async () => {
+  // Clean up temp admin user
+  const { DB } = require('./database/database.js');
+  const conn = await DB.getConnection();
+  await DB.query(conn, `DELETE FROM userRole WHERE userId=?`, [adminId]);
+  await DB.query(conn, `DELETE FROM auth WHERE userId=?`, [adminId]);
+  await DB.query(conn, `DELETE FROM user WHERE id=?`, [adminId]);
+  conn.end();
 });
 
 //Test for Registration (Passes Lint)
@@ -219,4 +245,3 @@ test('list users with name filter', async () => {
   expect(res.status).toBe(200);
   expect(Array.isArray(res.body.users)).toBe(true);
 });
-
