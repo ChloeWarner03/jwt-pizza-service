@@ -4,6 +4,7 @@ const app = require('./service');
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 let testUserId;
+let adminToken;
 let adminId;
 let adminEmail;
 
@@ -51,8 +52,8 @@ afterAll(async () => {
   // Clean up temp admin user
   const { DB } = require('./database/database.js');
   const conn = await DB.getConnection();
-  await DB.query(conn, `DELETE FROM userRole WHERE userId=?`, [adminId]);
   await DB.query(conn, `DELETE FROM auth WHERE userId=?`, [adminId]);
+  await DB.query(conn, `DELETE FROM userRole WHERE userId=?`, [adminId]);
   await DB.query(conn, `DELETE FROM user WHERE id=?`, [adminId]);
   conn.end();
 });
@@ -71,7 +72,6 @@ test('register missing password fails', async () => {
   const res = await request(app)
     .post('/api/auth')
     .send({ name: 'bad', email: 'bad@test.com' });
-
   expect([400, 500]).toContain(res.status);
 });
 
@@ -80,7 +80,6 @@ test('login wrong password fails', async () => {
   const res = await request(app)
     .put('/api/auth')
     .send({ email: testUser.email, password: 'wrongpassword' });
-
   expect([401, 403, 404]).toContain(res.status);
 });
 
@@ -95,7 +94,6 @@ test('get user by id authorized', async () => {
   const res = await request(app)
     .get(`/api/user/${testUserId}`)
     .set('Authorization', `Bearer ${testUserAuthToken}`);
-
   expect([200, 404]).toContain(res.status);
 });
 
@@ -104,7 +102,6 @@ test('get user by id without auth fails', async () => {
   const res = await request(app).get(`/api/user/${testUserId}`);
   expect([200, 404]).toContain(res.status);
 });
-
 
 //Test for Update User
 test('update user', async () => {
@@ -202,7 +199,7 @@ test('unknown endpoint', async () => {
   expect(res.status).toBe(404);
 });
 
-//logout tets 
+//logout test
 test('logout', async () => {
   const res = await request(app)
     .delete('/api/auth')
@@ -244,4 +241,22 @@ test('list users with name filter', async () => {
     .set('Authorization', 'Bearer ' + adminToken);
   expect(res.status).toBe(200);
   expect(Array.isArray(res.body.users)).toBe(true);
+});
+
+test('delete user as admin', async () => {
+  const [user] = await registerUser(request(app));
+  const res = await request(app)
+    .delete(`/api/user/${user.id}`)
+    .set('Authorization', 'Bearer ' + adminToken);
+  expect(res.status).toBe(200);
+  expect(res.body.message).toBe('user deleted');
+});
+
+test('delete user as non-admin forbidden', async () => {
+  const [user] = await registerUser(request(app));
+  const [, token] = await registerUser(request(app));
+  const res = await request(app)
+    .delete(`/api/user/${user.id}`)
+    .set('Authorization', 'Bearer ' + token);
+  expect(res.status).toBe(403);
 });
