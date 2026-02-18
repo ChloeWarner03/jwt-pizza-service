@@ -224,3 +224,5 @@ async function registerUser(service) {
   registerRes.body.user.password = testUser.password;
   return [registerRes.body.user, registerRes.body.token];
 }
+
+//Ran the tests and they worked?
