@@ -80,11 +80,11 @@ authRouter.put(
       const { email, password } = req.body;
       const user = await DB.getUser(email, password);
       const auth = await setAuth(user);
-      metrics.trackAuth(true);
+      metrics.trackAuth(true); //Successful login
       metrics.trackActiveUser(1);
       res.json({ user: user, token: auth });
     } catch (err) {
-      metrics.trackAuth(false);
+      metrics.trackAuth(false); //Failed login
       throw err;
     }
   })
