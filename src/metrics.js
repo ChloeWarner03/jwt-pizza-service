@@ -35,8 +35,10 @@ class Metrics {
 
   trackActiveUser(delta) {
     this.userMetrics.activeUsers += delta;
+    if (this.userMetrics.activeUsers < 0) {
+      this.userMetrics.activeUsers = 0;
+    }
   }
-
 
 
 
