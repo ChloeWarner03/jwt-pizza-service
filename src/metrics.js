@@ -47,22 +47,15 @@ class Metrics {
     this.purchaseMetrics.creationLatency = latency;
   }
 
-
   getCpuUsagePercentage() { //This is for the CPU usage metric
     const cpuUsage = os.loadavg()[0] / os.cpus().length;
     return (cpuUsage * 100).toFixed(2);
   }
-
-
-
-  
   getMemoryUsagePercentage() { //This is for the Memory usage metric
     const totalMemory = os.totalmem();
     const freeMemory = os.freemem();
     return (((totalMemory - freeMemory) / totalMemory) * 100).toFixed(2);
   }
-
-
 
   sendMetricsPeriodically(period) {
     setInterval(() => {
