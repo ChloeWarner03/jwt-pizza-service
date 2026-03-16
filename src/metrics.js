@@ -40,7 +40,7 @@ class Metrics {
 
 
 
-    pizzaPurchase(success, latency, price) { //pizza purchase metric tracking
+  pizzaPurchase(success, latency, price) { //pizza purchase metric tracking
     if (success) {
       this.purchaseMetrics.sold++;
       this.purchaseMetrics.revenue += price;
@@ -91,11 +91,13 @@ class Metrics {
 
 
 
-  // Pizza metrics for this part of the deliverable
+    // Pizza metrics for this part of the deliverable
     this.sendMetric('pizzas_sold', this.purchaseMetrics.sold, 'sum', '1');
     this.sendMetric('pizza_failures', this.purchaseMetrics.failures, 'sum', '1');
     this.sendMetric('pizza_revenue', this.purchaseMetrics.revenue, 'sum', '1');
     this.sendMetric('pizza_creation_latency', this.purchaseMetrics.creationLatency, 'gauge', 'ms');
+
+
 
     // Latency
     this.sendMetric('service_latency', this.serviceLatency, 'gauge', 'ms');
