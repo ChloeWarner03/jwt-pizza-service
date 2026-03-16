@@ -138,5 +138,11 @@ class Metrics {
   }
 }
 
+//const metrics = new Metrics();
+//module.exports = metrics;
+
 const metrics = new Metrics();
+if (require.main !== module && process.env.NODE_ENV !== 'test') {
+  metrics.sendMetricsPeriodically(10000);
+}
 module.exports = metrics;
