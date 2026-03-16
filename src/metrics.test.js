@@ -43,4 +43,41 @@ describe('metrics', () => {
     const mem = metrics.getMemoryUsagePercentage();
     expect(mem).toBeDefined();
   });
+
+test('sendAllMetrics does not throw', () => {
+    expect(() => metrics.sendAllMetrics()).not.toThrow();
+  });
+
+  test('sendMetric gauge does not throw', () => {
+    expect(() => metrics.sendMetric('test_gauge', 42, 'gauge', '%')).not.toThrow();
+  });
+
+  test('sendMetric sum does not throw', () => {
+    expect(() => metrics.sendMetric('test_sum', 10, 'sum', '1')).not.toThrow();
+  });
+
+  test('requestTracker middleware', () => {
+    const req = { method: 'GET' };
+    const res = { on: jest.fn() };
+    const next = jest.fn();
+    metrics.requestTracker(req, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(metrics.httpMetrics.get).toBeGreaterThan(0);
+  });
+
+  test('requestTracker POST', () => {
+    const req = { method: 'POST' };
+    const res = { on: jest.fn() };
+    const next = jest.fn();
+    metrics.requestTracker(req, res, next);
+    expect(metrics.httpMetrics.post).toBeGreaterThan(0);
+  });
+
+  test('requestTracker DELETE', () => {
+    const req = { method: 'DELETE' };
+    const res = { on: jest.fn() };
+    const next = jest.fn();
+    metrics.requestTracker(req, res, next);
+    expect(metrics.httpMetrics.delete).toBeGreaterThan(0);
+  });
 });
