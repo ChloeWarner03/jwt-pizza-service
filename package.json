@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "cd src && node index.js",
-    "test": "jest",
+    "test": "jest --forceExit",
     "lint": "eslint ."
   },
   "jest": {
     "collectCoverage": true,
+    "forceExit": true,
     "coveragePathIgnorePatterns": [
       "/src/database/database.js"
     ],
