@@ -89,7 +89,7 @@ orderRouter.post(
     const latency = Date.now() - start;
     const j = await r.json();
     if (r.ok) {
-      const revenue = orderReq.items.reduce((sum, item) => sum + item.price, 0);
+      const revenue = orderReq.items.reduce((sum, item) => sum + item.price, 0); //order revenue
       metrics.pizzaPurchase(true, latency, revenue);
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {

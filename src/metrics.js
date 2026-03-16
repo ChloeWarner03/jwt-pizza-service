@@ -37,7 +37,10 @@ class Metrics {
     this.userMetrics.activeUsers += delta;
   }
 
-  pizzaPurchase(success, latency, price) {
+
+
+
+    pizzaPurchase(success, latency, price) { //pizza purchase metric tracking
     if (success) {
       this.purchaseMetrics.sold++;
       this.purchaseMetrics.revenue += price;
@@ -82,11 +85,13 @@ class Metrics {
     // User metrics
     this.sendMetric('active_users', this.userMetrics.activeUsers, 'gauge', '1');
 
-    // System metrics
+    // System metrics for the cpu and the me1mory usage
     this.sendMetric('cpu_usage', this.getCpuUsagePercentage(), 'gauge', '%');
     this.sendMetric('memory_usage', this.getMemoryUsagePercentage(), 'gauge', '%');
 
-    // Pizza metrics
+
+
+  // Pizza metrics for this part of the deliverable
     this.sendMetric('pizzas_sold', this.purchaseMetrics.sold, 'sum', '1');
     this.sendMetric('pizza_failures', this.purchaseMetrics.failures, 'sum', '1');
     this.sendMetric('pizza_revenue', this.purchaseMetrics.revenue, 'sum', '1');
