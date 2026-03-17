@@ -12,7 +12,7 @@ class Metrics {
     this.sendMetricsPeriodically(10000);
   }
 
-  // Middleware to track HTTP requests
+  //Track HTTP requests
   requestTracker = (req, res, next) => {
     this.httpMetrics.total++;
     const method = req.method.toLowerCase();
@@ -91,15 +91,11 @@ class Metrics {
     this.sendMetric('cpu_usage', this.getCpuUsagePercentage(), 'gauge', '%');
     this.sendMetric('memory_usage', this.getMemoryUsagePercentage(), 'gauge', '%');
 
-
-
     // Pizza metrics for this part of the deliverable
     this.sendMetric('pizzas_sold', this.purchaseMetrics.sold, 'sum', '1');
     this.sendMetric('pizza_failures', this.purchaseMetrics.failures, 'sum', '1');
     this.sendMetric('pizza_revenue', this.purchaseMetrics.revenue, 'sum', '1');
     this.sendMetric('pizza_creation_latency', this.purchaseMetrics.creationLatency, 'gauge', 'ms');
-
-
 
     // Latency
     this.sendMetric('service_latency', this.serviceLatency, 'gauge', 'ms');
