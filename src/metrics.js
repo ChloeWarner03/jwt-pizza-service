@@ -110,7 +110,7 @@ class Metrics {
             unit: unit,
             [type]: {
               dataPoints: [{
-                asInt: Math.round(metricValue),
+                asDouble: parseFloat(metricValue),  // changed from asInt
                 timeUnixNano: Date.now() * 1000000,
                 attributes: [{
                   key: 'source',
