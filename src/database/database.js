@@ -29,6 +29,13 @@ class DB {
     }
   }
 
+  async query(connection, sql, params) {
+  const logger = require('../logger.js');
+  logger.log('info', 'db', { sql, params });
+  const [results] = await connection.execute(sql, params);
+  return results;
+}
+
   async addUser(user) {
     const connection = await this.getConnection();
     try {
