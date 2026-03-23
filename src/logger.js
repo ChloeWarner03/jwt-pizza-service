@@ -1,31 +1,44 @@
 const config = require('./config');
 
+const SENSITIVE_KEYS = /^(password|token|apiKey|api_key|authorization|secret|creditCard|ssn)$/i;
+
 class Logger {
   httpLogger = (req, res, next) => {
-    let send = res.send;
+    const originalSend = res.send.bind(res);
+
     res.send = (resBody) => {
+      // Restore immediately so downstream calls don't re-enter
+      res.send = originalSend;
+
       const logData = {
         authorized: !!req.headers.authorization,
         path: req.originalUrl,
         method: req.method,
         statusCode: res.statusCode,
-        reqBody: JSON.stringify(req.body),
-        resBody: JSON.stringify(resBody),
+        reqBody: req.body,
+        resBody: this.tryParseJson(resBody),
       };
-      const level = this.statusToLogLevel(res.statusCode);
-      this.log(level, 'http', logData);
-      res.send = send;
-      return res.send(resBody);
+
+      this.log(this.statusToLogLevel(res.statusCode), 'http', logData);
+
+      return originalSend(resBody);
     };
+
     next();
   };
 
   log(level, type, logData) {
-    const labels = { component: config.logging.source, level: level, type: type };
-    const values = [this.nowString(), this.sanitize(logData)];
-    const logEvent = { streams: [{ stream: labels, values: [values] }] };
+    const labels = {
+      component: config.logging.source,
+      level,
+      type,
+    };
+    const values = [[this.nowString(), this.sanitize(logData)]];
+    const logEvent = { streams: [{ stream: labels, values }] };
     this.sendLogToGrafana(logEvent);
   }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
   statusToLogLevel(statusCode) {
     if (statusCode >= 500) return 'error';
@@ -34,26 +47,47 @@ class Logger {
   }
 
   nowString() {
-    return (Math.floor(Date.now()) * 1000000).toString();
+    // Loki expects nanosecond epoch as a string — use BigInt to avoid precision loss
+    return (BigInt(Date.now()) * 1_000_000n).toString();
   }
 
-  sanitize(logData) {
-    logData = JSON.stringify(logData);
-    return logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
+  tryParseJson(value) {
+    if (typeof value !== 'string') return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+
+  sanitize(obj) {
+    // Redact on the object before stringifying so the regex stays simple
+    const redact = (val) => {
+      if (typeof val === 'string') return val;
+      if (Array.isArray(val)) return val.map(redact);
+      if (val && typeof val === 'object') {
+        return Object.fromEntries(
+          Object.entries(val).map(([k, v]) =>
+            SENSITIVE_KEYS.test(k) ? [k, '*****'] : [k, redact(v)]
+          )
+        );
+      }
+      return val;
+    };
+    return JSON.stringify(redact(obj));
   }
 
   sendLogToGrafana(event) {
-    const body = JSON.stringify(event);
-    fetch(`${config.logging.endpointUrl}`, {
+    fetch(config.logging.endpointUrl, {
       method: 'post',
-      body: body,
+      body: JSON.stringify(event),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${config.logging.accountId}:${config.logging.apiKey}`,
       },
     }).then((res) => {
-      if (!res.ok) console.log('Failed to send log to Grafana');
-    });
+      if (!res.ok) res.text().then((t) => console.error('Grafana log failed:', res.status, t));
+    }).catch((err) => console.error('Grafana log error:', err));
   }
 }
 
