@@ -7,7 +7,6 @@ class Logger {
     const originalSend = res.send.bind(res);
 
     res.send = (resBody) => {
-      // Restore immediately so downstream calls don't re-enter
       res.send = originalSend;
 
       const logData = {
@@ -33,12 +32,22 @@ class Logger {
       level,
       type,
     };
-    const values = [[this.nowString(), this.sanitize(logData)]];
-    const logEvent = { streams: [{ stream: labels, values }] };
+     
+    const values = [[this.nowString(), JSON.stringify(this.sanitize(logData))]];
+    const logEvent = { streams: [{ stream: { ...labels, ...this.flattenForLabels(logData) }, values }] };
     this.sendLogToGrafana(logEvent);
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  flattenForLabels(obj) {
+    const labels = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+        labels[k] = String(v);
+      }
+    }
+    return labels;
+  }
+  // Helpers
 
   statusToLogLevel(statusCode) {
     if (statusCode >= 500) return 'error';
@@ -47,7 +56,6 @@ class Logger {
   }
 
   nowString() {
-    // Loki expects nanosecond epoch as a string — use BigInt to avoid precision loss
     return (BigInt(Date.now()) * 1_000_000n).toString();
   }
 
@@ -61,7 +69,6 @@ class Logger {
   }
 
   sanitize(obj) {
-    // Redact on the object before stringifying so the regex stays simple
     const redact = (val) => {
       if (typeof val === 'string') return val;
       if (Array.isArray(val)) return val.map(redact);
