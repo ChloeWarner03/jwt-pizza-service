@@ -342,11 +342,6 @@ class DB {
     return '';
   }
 
-  async query(connection, sql, params) {
-    const [results] = await connection.execute(sql, params);
-    return results;
-  }
-
   async getID(connection, key, value, table) {
     const [rows] = await connection.execute(`SELECT id FROM ${table} WHERE ${key}=?`, [value]);
     if (rows.length > 0) {
