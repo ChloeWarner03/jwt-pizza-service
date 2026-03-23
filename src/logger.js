@@ -26,16 +26,20 @@ class Logger {
     next();
   };
 
-  log(level, type, logData) {
-    const labels = {
-      component: config.logging.source,
-      level,
-      type,
+  sanitize(obj) {
+    const redact = (val) => {
+      if (typeof val === 'string') return val;
+      if (Array.isArray(val)) return val.map(redact);
+      if (val && typeof val === 'object') {
+        return Object.fromEntries(
+          Object.entries(val).map(([k, v]) =>
+            SENSITIVE_KEYS.test(k) ? [k, '*****'] : [k, redact(v)]
+          )
+        );
+      }
+      return val;
     };
-     
-    const values = [[this.nowString(), JSON.stringify(this.sanitize(logData))]];
-    const logEvent = { streams: [{ stream: { ...labels, ...this.flattenForLabels(logData) }, values }] };
-    this.sendLogToGrafana(logEvent);
+    return redact(obj);  // ← return object, not JSON.stringify
   }
 
   flattenForLabels(obj) {
