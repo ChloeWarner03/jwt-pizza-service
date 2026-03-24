@@ -65,7 +65,7 @@
         "cellHeight": "sm",
         "showHeader": true
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "datasource": {
@@ -83,21 +83,29 @@
       "title": "Service Logs",
       "transformations": [
         {
+          "id": "extractFields",
+          "options": {
+            "delimiter": ",",
+            "format": "json",
+            "source": "Line"
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Line": false,
-              "Time": false,
-              "id": false,
-              "labelTypes": false,
-              "labels": false,
-              "traceID": false,
-              "traceID (field)": false,
-              "tsNs": false
+              "Line": true,
+              "id": true,
+              "labelTypes": true,
+              "labels": true,
+              "request": false,
+              "statusCode": true,
+              "traceID": true,
+              "traceID (field)": true,
+              "tsNs": true
             },
             "includeByName": {},
             "indexByName": {},
-            "orderByMode": "manual",
             "renameByName": {}
           }
         }
@@ -231,7 +239,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -380,7 +388,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -506,7 +514,7 @@
         "sparkline": true,
         "textMode": "auto"
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -656,7 +664,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -809,7 +817,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -954,7 +962,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -1097,7 +1105,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "code",
@@ -1201,7 +1209,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "13.0.0-23069273608.patch3",
+      "pluginVersion": "13.0.0-23429090056",
       "targets": [
         {
           "editorMode": "builder",
@@ -1230,7 +1238,7 @@
   "timezone": "browser",
   "title": "Pizza Dashboard",
   "weekStart": "",
-  "version": 73,
+  "version": 74,
   "uid": "chx9csb",
   "id": 2253213141999616
 }
