@@ -1,6 +1,6 @@
 const config = require('./config');
 
-const SENSITIVE_KEYS = /^(password|token|apiKey|api_key|authorization|secret|creditCard|ssn)$/i;
+const SENSITIVE_KEYS = /^(password|token|apiKey|api_key|authorization|secret|creditCard|ssn|jwt|params)$/i;
 
 class Logger {
   httpLogger = (req, res, next) => {
@@ -47,8 +47,8 @@ class Logger {
     }
     return labels;
   }
-  // Helpers
 
+  // Helpers
   statusToLogLevel(statusCode) {
     if (statusCode >= 500) return 'error';
     if (statusCode >= 400) return 'warn';
@@ -81,7 +81,7 @@ class Logger {
       }
       return val;
     };
-    return redact(obj);  // ← return object, not JSON.stringify
+    return redact(obj);
   }
 
   sendLogToGrafana(event) {

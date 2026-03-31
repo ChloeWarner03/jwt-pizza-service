@@ -8,6 +8,23 @@ const config = require('./config.js');
 const metrics = require('./metrics');
 const logger = require('./logger');
 
+// Unhandled exception logging
+process.on('uncaughtException', (err) => {
+  logger.log('error', 'unhandledError', {
+    message: err.message,
+    stack: err.stack,
+    type: 'uncaughtException',
+  });
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logger.log('error', 'unhandledError', {
+    message: String(reason),
+    type: 'unhandledRejection',
+  });
+});
+
 const app = express();
 app.use(express.json());
 app.use(metrics.requestTracker);
@@ -42,8 +59,14 @@ app.get('/', (req, res) => {
     version: version.version,
   });
 });
-// Default error handler for all exceptions and errors.
+
+// Default error handler — logs all exceptions before responding
 app.use((err, req, res, next) => {
+  logger.log('error', 'exception', {
+    message: err.message,
+    stack: err.stack,
+    statusCode: err.statusCode ?? 500,
+  });
   res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
   next();
 });
