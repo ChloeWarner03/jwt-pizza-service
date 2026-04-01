@@ -75,30 +75,30 @@ class Metrics {
   sendAllMetrics() {
     // HTTP metrics
     this.sendMetric('http_requests_total', this.httpMetrics.total, 'sum', '1');
-    this.sendMetric('http_requests_get', this.httpMetrics.get, 'sum', '1');
-    this.sendMetric('http_requests_post', this.httpMetrics.post, 'sum', '1');
-    this.sendMetric('http_requests_put', this.httpMetrics.put, 'sum', '1');
-    this.sendMetric('http_requests_delete', this.httpMetrics.delete, 'sum', '1');
+    this.sendMetric('http_requests_get_total', this.httpMetrics.get, 'sum', '1');
+    this.sendMetric('http_requests_post_total', this.httpMetrics.post, 'sum', '1');
+    this.sendMetric('http_requests_put_total', this.httpMetrics.put, 'sum', '1');
+    this.sendMetric('http_requests_delete_total', this.httpMetrics.delete, 'sum', '1');
 
     // Auth metrics
-    this.sendMetric('auth_successful', this.authMetrics.successful, 'sum', '1');
-    this.sendMetric('auth_failed', this.authMetrics.failed, 'sum', '1');
+    this.sendMetric('auth_successful_total', this.authMetrics.successful, 'sum', '1');
+    this.sendMetric('auth_failed_total', this.authMetrics.failed, 'sum', '1');
 
     // User metrics
     this.sendMetric('active_users', this.userMetrics.activeUsers, 'gauge', '1');
 
-    // System metrics for the cpu and the me1mory usage
-    this.sendMetric('cpu_usage', this.getCpuUsagePercentage(), 'gauge', '%');
-    this.sendMetric('memory_usage', this.getMemoryUsagePercentage(), 'gauge', '%');
+    // System metrics
+    this.sendMetric('cpu_usage_percent', this.getCpuUsagePercentage(), 'gauge', '%');
+    this.sendMetric('memory_usage_percent', this.getMemoryUsagePercentage(), 'gauge', '%');
 
-    // Pizza metrics for this part of the deliverable
-    this.sendMetric('pizzas_sold', this.purchaseMetrics.sold, 'sum', '1');
-    this.sendMetric('pizza_failures', this.purchaseMetrics.failures, 'sum', '1');
-    this.sendMetric('pizza_revenue', this.purchaseMetrics.revenue, 'sum', '1');
-    this.sendMetric('pizza_creation_latency', this.purchaseMetrics.creationLatency, 'gauge', 'ms');
+    // Pizza metrics
+    this.sendMetric('pizzas_sold_total', this.purchaseMetrics.sold, 'sum', '1');
+    this.sendMetric('pizza_failures_total', this.purchaseMetrics.failures, 'sum', '1');
+    this.sendMetric('pizza_revenue_total', this.purchaseMetrics.revenue, 'sum', '1');
+    this.sendMetric('pizza_creation_latency_milliseconds', this.purchaseMetrics.creationLatency, 'gauge', 'ms');
 
     // Latency
-    this.sendMetric('service_latency', this.serviceLatency, 'gauge', 'ms');
+    this.sendMetric('service_latency_milliseconds', this.serviceLatency, 'gauge', 'ms');
   }
 
   sendMetric(metricName, metricValue, type, unit) {
