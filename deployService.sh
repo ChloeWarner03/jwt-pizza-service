@@ -39,7 +39,6 @@ ssh -i "$key" ubuntu@$hostname << ENDSSH
 bash -i
 cd services/${service}
 npm install
-node src/init.js "admin" "a@jwt.com" "admin"
 pm2 restart ${service}
 ENDSSH
 
