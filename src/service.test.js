@@ -89,6 +89,15 @@ test('get all users without auth fails', async () => {
   expect([401, 403]).toContain(res.status);
 });
 
+test('get all users with auth', async () => {
+  const res = await request(app)
+    .get('/api/user')
+    .set('Authorization', `Bearer ${adminToken}`);
+  expect(res.status).toBe(200);
+  expect(Array.isArray(res.body.users)).toBe(true);
+  expect(res.body.users.length).toBeGreaterThan(0);
+});
+
 // Test for Get User by ID
 test('get user by id authorized', async () => {
   const res = await request(app)
