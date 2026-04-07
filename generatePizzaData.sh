@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the host
-host=http://localhost:3000
+host=https://pizza-service.devops-cwarner.click
 
 # Log in as admin and get token
 response=$(curl -s -X PUT $host/api/auth \
