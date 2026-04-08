@@ -65,14 +65,6 @@ authRouter.post(
       metrics.trackAuth(false);
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
-
-    // Password strength check
-    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-    if (!strongPassword.test(password)) {
-      metrics.trackAuth(false);
-      return res.status(400).json({ message: 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (!@#$%^&*)' });
-    }
-
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
     const auth = await setAuth(user);
     metrics.trackAuth(true);
