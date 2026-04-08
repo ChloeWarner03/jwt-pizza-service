@@ -106,15 +106,11 @@ authRouter.put(
       res.json({ user: user, token: auth });
     } catch (err) {
       const { email } = req.body;
-      // Track failed attempt
       if (!failedAttempts[email]) {
-        failedAttempts[email] = { count: 0, firstAttempt: Date.now() };
+        failedAttempts[email] = { count: 0, lastAttempt: Date.now() };
       }
       failedAttempts[email].count++;
-
-      // Then in the check:
-      const timeLeft = LOCKOUT_MS - (Date.now() - attempts.firstAttempt);
-
+      failedAttempts[email].lastAttempt = Date.now();
       metrics.trackAuth(false);
       throw err;
     }
