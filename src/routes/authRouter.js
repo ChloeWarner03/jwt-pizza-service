@@ -65,17 +65,19 @@ authRouter.post(
       metrics.trackAuth(false);
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
+
+    // Password strength check
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+    if (!strongPassword.test(password)) {
+      metrics.trackAuth(false);
+      return res.status(400).json({ message: 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character (!@#$%^&*)' });
+    }
+
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
-    const auth = await setAuth(user);
-    metrics.trackAuth(true);
-    metrics.trackActiveUser(1);
-    res.json({ user: user, token: auth });
-  })
-);
 
 // In-memory store for failed attempts
 const failedAttempts = {};
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 // login
