@@ -84,7 +84,7 @@ authRouter.put(
   asyncHandler(async (req, res) => {
     try {
       const { email, password } = req.body;
-      
+
       // Check if account is locked
       const attempts = failedAttempts[email];
       if (attempts && attempts.count >= MAX_ATTEMPTS) {
@@ -97,7 +97,7 @@ authRouter.put(
       }
 
       const user = await DB.getUser(email, password);
-      
+
       // Successful login - clear failed attempts
       delete failedAttempts[email];
       const auth = await setAuth(user);
@@ -108,11 +108,13 @@ authRouter.put(
       const { email } = req.body;
       // Track failed attempt
       if (!failedAttempts[email]) {
-        failedAttempts[email] = { count: 0, lastAttempt: Date.now() };
+        failedAttempts[email] = { count: 0, firstAttempt: Date.now() };
       }
       failedAttempts[email].count++;
-      failedAttempts[email].lastAttempt = Date.now();
-      
+
+      // Then in the check:
+      const timeLeft = LOCKOUT_MS - (Date.now() - attempts.firstAttempt);
+
       metrics.trackAuth(false);
       throw err;
     }
