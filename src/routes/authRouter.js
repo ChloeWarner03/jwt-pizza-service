@@ -92,7 +92,7 @@ authRouter.put(
     try {
       const { email, password } = req.body;
 
-      // Check if account is locked
+      // Check if account is locked?
       const attempts = failedAttempts[email];
       if (attempts && attempts.count >= MAX_ATTEMPTS) {
         const timeLeft = LOCKOUT_MS - (Date.now() - attempts.lastAttempt);
