@@ -67,7 +67,7 @@ app.use((err, req, res, next) => {
     stack: err.stack,
     statusCode: err.statusCode ?? 500,
   });
-  res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
+  res.status(err.statusCode ?? 500).json({ message: err.message, stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined });
   next();
 });
 
