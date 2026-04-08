@@ -72,19 +72,48 @@ authRouter.post(
     res.json({ user: user, token: auth });
   })
 );
+
+// In-memory store for failed attempts
+const failedAttempts = {};
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
 // login
 authRouter.put(
   '/',
   asyncHandler(async (req, res) => {
     try {
       const { email, password } = req.body;
+      
+      // Check if account is locked
+      const attempts = failedAttempts[email];
+      if (attempts && attempts.count >= MAX_ATTEMPTS) {
+        const timeLeft = LOCKOUT_MS - (Date.now() - attempts.lastAttempt);
+        if (timeLeft > 0) {
+          return res.status(429).json({ message: `Account locked. Try again in ${Math.ceil(timeLeft / 60000)} minutes.` });
+        } else {
+          delete failedAttempts[email]; // lockout expired, reset
+        }
+      }
+
       const user = await DB.getUser(email, password);
+      
+      // Successful login - clear failed attempts
+      delete failedAttempts[email];
       const auth = await setAuth(user);
-      metrics.trackAuth(true); //Successful login
+      metrics.trackAuth(true);
       metrics.trackActiveUser(1);
       res.json({ user: user, token: auth });
     } catch (err) {
-      metrics.trackAuth(false); //Failed login
+      const { email } = req.body;
+      // Track failed attempt
+      if (!failedAttempts[email]) {
+        failedAttempts[email] = { count: 0, lastAttempt: Date.now() };
+      }
+      failedAttempts[email].count++;
+      failedAttempts[email].lastAttempt = Date.now();
+      
+      metrics.trackAuth(false);
       throw err;
     }
   })
