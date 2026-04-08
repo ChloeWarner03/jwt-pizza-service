@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
@@ -37,7 +38,6 @@ async function setAuthUser(req, res, next) {
   if (token) {
     try {
       if (await DB.isLoggedIn(token)) {
-        // Check the database to make sure the token is valid.
         req.user = jwt.verify(token, config.jwtSecret);
         req.user.isRole = (role) => !!req.user.roles.find((r) => r.role === role);
       }
@@ -78,9 +78,16 @@ const failedAttempts = {};
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: { message: 'Too many requests, please try again later.' }
+});
+
 // login
 authRouter.put(
   '/',
+  loginLimiter,
   asyncHandler(async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -92,13 +99,12 @@ authRouter.put(
         if (timeLeft > 0) {
           return res.status(429).json({ message: `Account locked. Try again in ${Math.ceil(timeLeft / 60000)} minutes.` });
         } else {
-          delete failedAttempts[email]; // lockout expired, reset
+          delete failedAttempts[email];
         }
       }
 
       const user = await DB.getUser(email, password);
 
-      // Successful login - clear failed attempts
       delete failedAttempts[email];
       const auth = await setAuth(user);
       metrics.trackAuth(true);
