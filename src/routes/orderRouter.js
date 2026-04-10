@@ -103,17 +103,6 @@ orderRouter.post(
   asyncHandler(async (req, res) => {
     const orderReq = req.body;
 
-    // ADD THIS: look up real prices from DB instead of trusting client
-    const menu = await DB.getMenu();
-    for (const item of orderReq.items) {
-      const menuItem = menu.find((m) => m.id === item.menuId);
-      if (!menuItem) {
-        throw new StatusCodeError('Invalid menu item', 400);
-      }
-      item.price = menuItem.price; // overwrite whatever price the client sent
-    }
-
-
     const order = await DB.addDinerOrder(req.user, orderReq);
     const start = Date.now();
 

@@ -199,7 +199,7 @@ test('create order', async () => {
       storeId: 1,
       items: [{ menuId: 1, description: 'Veggie', price: 0.05 }]
     });
-  expect([200, 500, 400]).toContain(orderRes.status);
+  expect([200, 500]).toContain(orderRes.status);
 });
 
 //Test for Unknown Endpoint
