@@ -80,7 +80,7 @@ const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50,
+  max: 30,
   message: { message: 'Too many requests, please try again later.' }
 });
 
@@ -135,7 +135,7 @@ authRouter.delete(
 );
 
 async function setAuth(user) {
-  const token = jwt.sign(user, config.jwtSecret);
+  const token = jwt.sign(user, config.jwtSecret, { expiresIn: '8h', algorithm: 'HS256' }); //makes it expire in 8 hours
   await DB.loginUser(user.id, token);
   return token;
 }
